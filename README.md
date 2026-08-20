@@ -1,7 +1,47 @@
 # Incident & Alert Management API
 
 Lightweight Incident & Alert Management system with a Vue 3 frontend, Spring Boot backend, MySQL storage, and Prometheus/Grafana for monitoring.
+```mermaid
+flowchart LR
+  %% 外部用户
+  U[User]
 
+  subgraph "K3s Cluster"
+    direction LR
+    IG[Ingress<br/>HTTPS]
+    FE[Vue 3 Frontend<br/>Nginx]
+    BE[Spring Boot Backend<br/>Java 17]
+    DB[(MySQL 8)]
+    PR[Prometheus]
+    GR[Grafana<br/>Dashboard]
+    LK[Loki]
+    PT[Promtail]
+  end
+
+  subgraph "CI/CD"
+    JK[Jenkins]
+  end
+
+  %% 请求流
+  U -->|HTTPS| IG
+  IG -->|"/"| FE
+  IG -->|"/api"| BE
+
+  %% 后端内部
+  FE -->|REST + JWT| BE
+  BE -->|JPA| DB
+
+  %% 监控与日志
+  BE -->|"/actuator/prometheus"| PR
+  PR --> GR
+  PT -.->|ログ収集| FE
+  PT -.->|ログ収集| BE
+  PT --> LK
+  LK --> GR
+
+  %% CI/CD 部署
+  JK -->|ビルド・デプロイ| K8s
+```
 ## Features
 - Dashboard: real-time stats, incident trend chart, severity distribution
 - Incidents: CRUD, search, filter, status timeline
