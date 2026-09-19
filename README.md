@@ -42,6 +42,8 @@ flowchart LR
   %% CI/CD 部署
   JK -->|ビルド・デプロイ| K8s
 ```
+
+
 ## Features
 
 - **Dashboard**: real-time statistics, incident trends, and severity distribution.
@@ -130,6 +132,14 @@ npm run dev
 - k8s/: Kubernetes manifests
 - docker-compose.yml: local multi-service stack
 
+
+## Monitoring
+
+This project includes a Grafana + Prometheus monitoring dashboard for service health:  
+backend availability, 5xx error rate, p95 latency, frontend availability, MySQL connections, and more.
+
+<img width="2560" height="1271" alt="image" src="https://github.com/user-attachments/assets/04dcde7c-5ac4-4fe0-a9d8-2663993073e7" />
+
 ## プロジェクト名：Incident & Alert Management Dashboard
 
 ### 概要
@@ -139,28 +149,6 @@ npm run dev
 **目的**：DevOpsやSREのスキルを実践的に学び、クラウドネイティブな環境での運用を経験すること。
 
 ---
-
-### 使用している技術
-
-| カテゴリ | 技術 |
-|:---|:---|
-| バックエンド | Java 17, Spring Boot 3, Spring Data JPA, JWT認証 |
-| フロントエンド | Vue 3, Vite, Element Plus, Chart.js |
-| データベース | MySQL 8 |
-| コンテナ | Docker, Docker Compose |
-| CI/CD | Jenkins（Pipeline） |
-| クラウド | AWS EC2 |
-| コンテナオーケストレーション | Kubernetes（K3s） |
-| 監視・可観測性 | Prometheus, Grafana, Loki, Promtail |
-
----
-
-### 機能一覧
-1. **ダッシュボード**：システム全体の状態を一目で確認。障害数、アラート数、CPU・メモリ使用率を表示。
-2. **インシデント管理**：障害の登録、ステータス更新、解決までを管理。
-3. **アラート管理**：Prometheusからのアラートを一覧表示し、対応状況を追跡。
-4. **監視画面**：Grafanaのダッシュボードを埋め込み、JVMメモリやHTTPリクエスト数をリアルタイム表示。
-5. **ユーザー認証**：JWTを使ったログイン機能。Spring Securityで保護。
 
 ---
 
@@ -214,7 +202,7 @@ K3sクラスタ上で以下のマニフェストを使ってデプロイ。
 **ローカルで動かす場合：**
 ```bash
 # リポジトリをクローン
-git clone https://github.com/yingruixu/Incident-Alert-Management-AP.git
+git clone https://github.com/yingruixu/Incident-Alert-Management-API.git
 
 # Docker Composeで起動
 cd incident-api
@@ -222,6 +210,6 @@ docker-compose up -d
 
 # ブラウザでアクセス
 # フロントエンド: http://localhost
-# バックエンドAPI: http://localhost:8080/api
+# バックエンドAPI: http://localhost:8081
 # Prometheus: http://localhost:9090
 # Grafana: http://localhost:3000
