@@ -3,9 +3,12 @@ kind: Service
 metadata:
   name: mysql
   namespace: incident
+  labels:
+    app: mysql
 spec:
   ports:
-    - port: 3306
+    - name: mysql
+      port: 3306
       targetPort: 3306
   selector:
     app: mysql

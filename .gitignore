@@ -36,3 +36,8 @@ build/
 /k3d-windows-amd64.exe
 /backend-v1.0.5.tar
 /prometheus.tar
+*.tar
+*.tar.gz
+k3d-windows-amd64
+k3d-windows-amd64.exe
+deploy-frontend.ps1

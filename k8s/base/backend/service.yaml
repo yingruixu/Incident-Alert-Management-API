@@ -3,9 +3,13 @@ kind: Service
 metadata:
   name: backend
   namespace: incident
+  labels:
+    app: backend
+    monitoring-job: incident-backend
 spec:
   ports:
-    - port: 8080
+    - name: http
+      port: 8080
       targetPort: 8080
   selector:
     app: backend

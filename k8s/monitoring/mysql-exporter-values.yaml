@@ -1,0 +1,25 @@
+fullnameOverride: incident-mysql-exporter
+
+mysql:
+  host: mysql.incident.svc.cluster.local
+  port: 3306
+  user: incident
+  existingPasswordSecret:
+    name: incident-mysql-exporter-secret
+    key: password
+
+serviceMonitor:
+  enabled: true
+  namespace: monitoring
+  additionalLabels:
+    release: monitoring
+  interval: 30s
+  scrapeTimeout: 10s
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 32Mi
+  limits:
+    cpu: 100m
+    memory: 128Mi

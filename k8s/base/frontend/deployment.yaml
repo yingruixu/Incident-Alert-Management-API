@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: shaun/frontend:v1.0.0
+          image: shaun/frontend:v1.0.5
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80

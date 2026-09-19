@@ -1,0 +1,26 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: incident-backend
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  namespaceSelector:
+    matchNames:
+      - incident
+  selector:
+    matchLabels:
+      app: backend
+  jobLabel: monitoring-job
+  endpoints:
+    - port: http
+      path: /actuator/prometheus
+      interval: 15s
+      scrapeTimeout: 10s
+      relabelings:
+        - sourceLabels:
+            - __meta_kubernetes_namespace
+            - __meta_kubernetes_service_name
+          targetLabel: job
+          replacement: incident-backend

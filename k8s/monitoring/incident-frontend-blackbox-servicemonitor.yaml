@@ -1,0 +1,30 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: incident-frontend-blackbox
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: prometheus-blackbox-exporter
+      app.kubernetes.io/instance: incident-blackbox-exporter
+  endpoints:
+    - port: http
+      path: /probe
+      interval: 30s
+      scrapeTimeout: 10s
+      params:
+        module:
+          - http_2xx
+        target:
+          - http://frontend.incident.svc.cluster.local/
+      relabelings:
+        - sourceLabels:
+            - __param_target
+          targetLabel: instance
+        - targetLabel: job
+          replacement: incident-frontend
+        - targetLabel: __address__
+          replacement: incident-blackbox-exporter.monitoring.svc.cluster.local:9115
