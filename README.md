@@ -1,49 +1,47 @@
 # Incident & Alert Management API
 
-Lightweight Incident & Alert Management system with a Vue 3 frontend, Spring Boot backend, MySQL storage, and Prometheus/Grafana monitoring.
-
-## Architecture
-
+Lightweight Incident & Alert Management system with a Vue 3 frontend, Spring Boot backend, MySQL storage, and Prometheus/Grafana for monitoring.
 ```mermaid
 flowchart LR
+  %% 外部用户
   U[User]
 
   subgraph "K3s Cluster"
     direction LR
-    IG[Ingress<br/>Traefik]
+    IG[Ingress<br/>HTTPS]
     FE[Vue 3 Frontend<br/>Nginx]
     BE[Spring Boot Backend<br/>Java 17]
     DB[(MySQL 8)]
     PR[Prometheus]
     GR[Grafana<br/>Dashboard]
-    ME[mysqld-exporter]
-    BB[Blackbox Exporter]
+    LK[Loki]
+    PT[Promtail]
   end
 
   subgraph "CI/CD"
     JK[Jenkins]
   end
 
-  U -->|HTTP/HTTPS| IG
+  %% 请求流
+  U -->|HTTPS| IG
   IG -->|"/"| FE
+  IG -->|"/api"| BE
+
+  %% 后端内部
   FE -->|REST + JWT| BE
   BE -->|JPA| DB
 
+  %% 监控与日志
   BE -->|"/actuator/prometheus"| PR
-  ME --> PR
-  BB -->|Frontend probe| PR
   PR --> GR
-  JK -->|Build and deploy| K3s[K3s Cluster]
+  PT -.->|ログ収集| FE
+  PT -.->|ログ収集| BE
+  PT --> LK
+  LK --> GR
+
+  %% CI/CD 部署
+  JK -->|ビルド・デプロイ| K8s
 ```
-
-The current K3s deployment separates business workloads and observability:
-
-- `incident` namespace: frontend, backend, and MySQL.
-- `monitoring` namespace: Prometheus, Grafana, `mysqld-exporter`, and Blackbox Exporter.
-- Prometheus discovers application targets through Kubernetes `ServiceMonitor` resources instead of fixed Pod IP addresses.
-
-Loki and Promtail are reserved for the next observability phase; the current repository focuses on Prometheus metrics and Grafana dashboards.
-
 ## Features
 
 - **Dashboard**: real-time statistics, incident trends, and severity distribution.
@@ -116,160 +114,114 @@ npm install
 npm run dev
 ```
 
-Build the frontend for production:
+## Configuration
+- Backend properties: see `src/main/resources/application.properties` for default values and database settings.
+- Kubernetes manifests are in the `k8s/` folder. Use overlays for environment-specific configs (e.g., `k8s/overlays/prod`).
 
-```powershell
-cd frontend
-npm run build
-```
+## Kubernetes
+- A base set of manifests is available at `k8s/base/` for backend, frontend, MySQL, and ingress.
+- To deploy to a cluster, adjust secrets (JWT key, DB credentials) and apply manifests with `kubectl apply -k k8s/overlays/<env>`.
 
-## Kubernetes / K3s
 
-Business workload manifests are under [k8s/base](k8s/base). Monitoring integration resources are under [k8s/monitoring](k8s/monitoring).
+## Project structure 
 
-Apply the business workloads:
+- frontend/: Vue 3 application (Vite)
+- src/: Spring Boot backend source
+- k8s/: Kubernetes manifests
+- docker-compose.yml: local multi-service stack
 
-```powershell
-kubectl apply -f k8s/base/namespace.yaml
-kubectl apply -f k8s/base/mysql
-kubectl apply -f k8s/base/backend
-kubectl apply -f k8s/base/frontend
-```
-
-Install the monitoring stack with Helm:
-
-```powershell
-helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-helm repo update
-helm upgrade --install monitoring prometheus-community/kube-prometheus-stack `
-  --namespace monitoring --create-namespace
-```
-
-Install the exporters:
-
-```powershell
-helm upgrade --install incident-mysql-exporter prometheus-community/prometheus-mysql-exporter `
-  --namespace monitoring --values k8s/monitoring/mysql-exporter-values.yaml
-
-helm upgrade --install incident-blackbox-exporter prometheus-community/prometheus-blackbox-exporter `
-  --namespace monitoring --values k8s/monitoring/blackbox-exporter-values.yaml
-```
-
-Apply ServiceMonitors and the monitoring Ingress:
-
-```powershell
-kubectl apply -f k8s/monitoring/incident-backend-servicemonitor.yaml
-kubectl apply -f k8s/monitoring/incident-frontend-blackbox-servicemonitor.yaml
-kubectl apply -f k8s/monitoring/ingress.yaml
-```
-
-For production, replace development credentials, local hostnames, and anonymous Grafana access with Kubernetes Secrets, TLS certificates, approved DNS, and authenticated access.
-
-## Monitoring Queries
-
-Backend availability:
-
-```promql
-100 * avg(up{job="incident-backend"})
-```
-
-Backend p95 latency:
-
-```promql
-1000 * histogram_quantile(0.95, sum by (le) (rate(http_server_requests_seconds_bucket{job="incident-backend"}[5m])))
-```
-
-MySQL availability:
-
-```promql
-mysql_up{job="incident-mysql-exporter"}
-```
-
-Frontend availability:
-
-```promql
-probe_success{job="incident-frontend"}
-```
-
-TLS certificate remaining days, when an HTTPS target is configured:
-
-```promql
-(probe_ssl_earliest_cert_expiry{job="incident-certificate"} - time()) / 86400
-```
-
-## Japanese Project Summary
-
-### プロジェクト名
-
-Incident & Alert Management Dashboard
+## プロジェクト名：Incident & Alert Management Dashboard
 
 ### 概要
+このプロジェクトは、システムの障害（インシデント）とアラートを一元管理するためのWebアプリケーションです。
+バックエンドからフロントエンド、インフラ、CI/CD、監視まで、すべてを自分で設計・実装しました。
 
-このプロジェクトは、システム障害（インシデント）とアラートを一元管理するWebアプリケーションです。バックエンド、フロントエンド、データベース、Kubernetes、CI/CD、監視までを一つのシステムとして設計・実装しています。
+**目的**：DevOpsやSREのスキルを実践的に学び、クラウドネイティブな環境での運用を経験すること。
 
-目的は、DevOpsとSREの実践を通して、クラウドネイティブな環境での開発・デプロイ・運用を経験することです。
+---
+
+### 使用している技術
+
+| カテゴリ | 技術 |
+|:---|:---|
+| バックエンド | Java 17, Spring Boot 3, Spring Data JPA, JWT認証 |
+| フロントエンド | Vue 3, Vite, Element Plus, Chart.js |
+| データベース | MySQL 8 |
+| コンテナ | Docker, Docker Compose |
+| CI/CD | Jenkins（Pipeline） |
+| クラウド | AWS EC2 |
+| コンテナオーケストレーション | Kubernetes（K3s） |
+| 監視・可観測性 | Prometheus, Grafana, Loki, Promtail |
+
+---
 
 ### 機能一覧
+1. **ダッシュボード**：システム全体の状態を一目で確認。障害数、アラート数、CPU・メモリ使用率を表示。
+2. **インシデント管理**：障害の登録、ステータス更新、解決までを管理。
+3. **アラート管理**：Prometheusからのアラートを一覧表示し、対応状況を追跡。
+4. **監視画面**：Grafanaのダッシュボードを埋め込み、JVMメモリやHTTPリクエスト数をリアルタイム表示。
+5. **ユーザー認証**：JWTを使ったログイン機能。Spring Securityで保護。
 
-1. **ダッシュボード**：システム状態、障害数、アラート数、トレンドを確認。
-2. **インシデント管理**：障害の登録、検索、ステータス更新、解決までを管理。
-3. **アラート管理**：アラート情報と対応状況を管理。
-4. **監視画面**：Grafanaの主要パネルを埋め込み、可用性、HTTPリクエスト、p95レイテンシ、JVM、MySQLを表示。
-5. **ユーザー認証**：JWTとSpring Securityによる認証・認可。
+---
 
-### プロジェクトで対応した課題
+### プロジェクトの中で苦労したこと・解決したこと
 
-| 課題 | 原因 | 対応 |
-| --- | --- | --- |
-| JWT認証で403が発生 | JWT_SECRETや認証設定が環境ごとに異なっていた | Kubernetes SecretとSpring Security設定を確認し、環境別設定を整理 |
-| MySQLに接続できない | DB接続先、ユーザー権限、Service名の不一致 | Kubernetes Service DNS、Secret、DB health checkを確認 |
-| Nginxからバックエンドへ接続できない | Service名やrewrite設定の不一致 | Nginx proxy設定とKubernetes Serviceを統一 |
-| Prometheusがメトリクスを取得できない | Actuator endpointがSecurityで保護されていた | `/actuator/prometheus`を監視用に公開し、ServiceMonitorを追加 |
-| Pod IPを監視設定に固定したくない | Pod再作成時にIPが変わる | ServiceMonitorとKubernetes Service Discoveryを採用 |
-| Grafanaをiframeに埋め込めない | iframe制限、subpath、静的リソースのproxy不一致 | `allow_embedding`、Grafana subpath、Nginx proxyを統一 |
+| 問題 | 原因 | 解決方法 |
+|:---|:---|:---|
+| JWT認証で403エラー | 環境変数からJWT_SECRETが正しく読み込めなかった | `System.getenv()` で強制的に読み込むように修正 |
+| MySQLに接続できない | データベース未作成 / ユーザー権限不足 | DBを作成し、ユーザーに権限を付与 |
+| Nginxがバックエンドにプロキシできない | Service名の間違い / rewriteルール不足 | Service名を修正し、rewriteルールを追加 |
+| CoreDNSが動かず名前解決不可 | CoreDNSのforward設定が間違っていた | ConfigMapを修正し、Podを再起動 |
+| Prometheusがメトリクスを取得できない（403） | Spring Securityが`/actuator/prometheus`をブロック | SecurityConfigで`permitAll()`に設定 |
+| K3dにDockerイメージをインポートできない | k3dの仕様によるdigestエラー | `docker save` + `ctr images import` で手動インポート |
 
-## Kubernetes Configuration
+---
 
-| Resource | Purpose |
-| --- | --- |
-| Namespace | `incident`と`monitoring`で業務系と監視系を分離 |
-| Deployment | frontendとbackendを複数レプリカで実行 |
-| StatefulSet | MySQLとPVCによるデータ永続化 |
-| Service | ClusterIPとKubernetes DNSによる内部通信 |
-| ServiceMonitor | Prometheusのアプリケーション自動検出 |
-| ConfigMap | アプリケーション設定とGrafana Dashboard provisioning |
-| Secret | DB認証情報、JWT_SECRET、exporter認証情報 |
-| Ingress | Traefikによる外部HTTP/HTTPSルーティング |
+### Kubernetes構成
+K3sクラスタ上で以下のマニフェストを使ってデプロイ。
 
-HPAやPDBなどの追加運用機能は、環境要件に応じて `k8s/overlays` へ拡張する想定です。
+| リソース | 用途 |
+|:---|:---|
+| Namespace | `incident` 名前空間にリソースを隔離 |
+| Deployment | バックエンド（2レプリカ）、フロントエンド（2レプリカ） |
+| Service | ClusterIPで内部通信 |
+| Ingress | 外部アクセスをバックエンド/フロントエンドに振り分け |
+| ConfigMap | アプリケーション設定ファイルを管理 |
+| Secret | データベースパスワードやJWT_SECRETを管理 |
+| StatefulSet | MySQLのデータ永続化（PVC付き） |
+| HPA | CPU使用率に応じてPodを自動増減 |
+| PDB | メンテナンス時に最低1つのPodが常に稼働 |
 
-## CI/CD Pipeline
+---
 
-現在の [Jenkinsfile](Jenkinsfile) は以下を実行します。
+### CI/CDパイプライン
+1. コードをGitHubにプッシュ
+2. Jenkinsが自動検知
+3. Mavenでビルド → Dockerイメージを作成
+4. イメージをDocker Hubにプッシュ
+5. KubernetesのDeploymentを更新
+6. 必要に応じてロールバック
 
-1. Git checkout
-2. Maven package
-3. Backend Docker image build
-4. Frontend Docker image build
-5. Docker Compose deployment
+---
 
-本番運用では、Docker Registryへのpush、脆弱性スキャン、Kubernetes rollout確認、失敗時のrollbackを追加します。
+### どうやって動かすか
 
-## Project Structure
+**必要なもの：**
+- Docker & Docker Compose
+- Kubernetesクラスタ（K3d推奨）
+- Jenkins（CI/CD用）
 
-```text
-frontend/                 Vue 3 application and Nginx configuration
-src/main/java/            Spring Boot backend source
-src/main/resources/       Application configuration
-k8s/base/                 Business workload manifests
-k8s/monitoring/           Prometheus, Grafana, and exporter resources
-grafana-dashboard.json    Grafana observability dashboard
-docker-compose.yml        Local integration stack
-Jenkinsfile               Jenkins pipeline
-```
+**ローカルで動かす場合：**
+```bash
+# リポジトリをクローン
+git clone https://github.com/yingruixu/Incident-Alert-Management-AP.git
 
-## Security Notes
+# Docker Composeで起動
+cd incident-api
+docker-compose up -d
 
-- Do not commit real passwords, JWT secrets, registry credentials, or TLS private keys.
-- The Kubernetes Secret files contain development-only values and must be replaced before production use.
-- Anonymous Grafana access is convenient for the local embedded dashboard but should be disabled in production.
+# ブラウザでアクセス
+# フロントエンド: http://localhost
+# バックエンドAPI: http://localhost:8080/api
+# Prometheus: http://localhost:9090
+# Grafana: http://localhost:3000
