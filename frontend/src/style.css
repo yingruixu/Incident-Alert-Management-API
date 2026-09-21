@@ -65,20 +65,24 @@ h1 {
   font-size: 56px;
   letter-spacing: -1.68px;
   margin: 32px 0;
+
   @media (max-width: 1024px) {
     font-size: 36px;
     margin: 20px 0;
   }
 }
+
 h2 {
   font-size: 24px;
   line-height: 118%;
   letter-spacing: -0.24px;
   margin: 0 0 8px;
+
   @media (max-width: 1024px) {
     font-size: 20px;
   }
 }
+
 p {
   margin: 0;
 }
@@ -111,6 +115,7 @@ code {
   &:hover {
     border-color: var(--accent-border);
   }
+
   &:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
@@ -142,8 +147,7 @@ code {
     z-index: 1;
     top: 34px;
     height: 28px;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
-      scale(1.4);
+    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg) scale(1.4);
   }
 
   .vite {
@@ -151,8 +155,7 @@ code {
     top: 107px;
     height: 26px;
     width: auto;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
-      scale(0.8);
+    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg) scale(0.8);
   }
 }
 
@@ -187,9 +190,10 @@ code {
   border-top: 1px solid var(--border);
   text-align: left;
 
-  & > div {
+  &>div {
     flex: 1 1 0;
     padding: 32px;
+
     @media (max-width: 1024px) {
       padding: 24px 20px;
     }
@@ -242,6 +246,7 @@ code {
     &:hover {
       box-shadow: var(--shadow);
     }
+
     .button-icon {
       height: 18px;
       width: 18px;
@@ -268,6 +273,7 @@ code {
 #spacer {
   height: 88px;
   border-top: 1px solid var(--border);
+
   @media (max-width: 1024px) {
     height: 48px;
   }
@@ -289,8 +295,275 @@ code {
     left: 0;
     border-left-color: var(--border);
   }
+
   &::after {
     right: 0;
     border-right-color: var(--border);
   }
+}
+
+/* Shared dark product UI for authenticated workspace screens. */
+.app-shell:not(.is-public) {
+  --workspace-bg: #0a0a0b;
+  --workspace-card: rgba(255, 255, 255, .055);
+  --workspace-border: rgba(255, 255, 255, .11);
+  --workspace-text: #f2f3f6;
+  --workspace-muted: #858894;
+  --workspace-blue: #5b8cff;
+  color: var(--workspace-text);
+  background: var(--workspace-bg);
+}
+
+.app-shell:not(.is-public) .content-container,
+.app-shell:not(.is-public) .app-main {
+  background: var(--workspace-bg);
+}
+
+.app-shell:not(.is-public) .app-header {
+  border-bottom-color: var(--workspace-border);
+  background: rgba(10, 10, 11, .82);
+  backdrop-filter: blur(18px);
+}
+
+.app-shell:not(.is-public) .breadcrumb {
+  color: #737681;
+}
+
+.app-shell:not(.is-public) .breadcrumb strong {
+  color: #e4e5e9;
+}
+
+.app-shell:not(.is-public) .breadcrumb b {
+  color: #484a53;
+}
+
+.app-shell:not(.is-public) .user-profile {
+  color: #e4e5e9;
+}
+
+.app-shell:not(.is-public) .user-profile small {
+  color: #737681;
+}
+
+.app-shell:not(.is-public) .avatar {
+  color: #c1d0ff;
+  background: rgba(91, 140, 255, .18);
+}
+
+.app-shell:not(.is-public) .app-main {
+  position: relative;
+  overflow: hidden;
+}
+
+.app-shell:not(.is-public) .app-main::before {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  content: '';
+  opacity: .42;
+  background-image: linear-gradient(rgba(255, 255, 255, .025) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, .025) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: linear-gradient(to bottom, black, transparent 72%);
+}
+
+.app-shell:not(.is-public) .app-main>* {
+  position: relative;
+  z-index: 1;
+}
+
+.app-shell:not(.is-public) .el-card {
+  border-color: var(--workspace-border);
+  background: var(--workspace-card);
+  box-shadow: 0 20px 55px rgba(0, 0, 0, .2), inset 0 1px rgba(255, 255, 255, .035);
+  backdrop-filter: blur(14px);
+}
+
+.app-shell:not(.is-public) .el-card__header {
+  border-bottom-color: var(--workspace-border);
+  color: var(--workspace-text);
+  background: transparent;
+}
+
+.app-shell:not(.is-public) .el-table {
+  --el-table-bg-color: transparent;
+  --el-table-tr-bg-color: transparent;
+  --el-table-header-bg-color: rgba(255, 255, 255, .035);
+  --el-table-row-hover-bg-color: rgba(91, 140, 255, .09);
+  --el-table-border-color: rgba(255, 255, 255, .08);
+  color: #c6c8cf;
+}
+
+.app-shell:not(.is-public) .el-table th.el-table__cell {
+  color: #858894;
+}
+
+.app-shell:not(.is-public) .el-table .el-table__cell {
+  background: transparent;
+}
+
+.app-shell:not(.is-public) .el-link {
+  color: #8eafff;
+}
+
+.app-shell:not(.is-public) .el-input__wrapper,
+.app-shell:not(.is-public) .el-select__wrapper,
+.app-shell:not(.is-public) .el-textarea__inner,
+.app-shell:not(.is-public) .el-input-number {
+  border: 1px solid rgba(255, 255, 255, .11);
+  box-shadow: none;
+  background: rgba(0, 0, 0, .2);
+}
+
+.app-shell:not(.is-public) .el-input__inner,
+.app-shell:not(.is-public) .el-textarea__inner,
+.app-shell:not(.is-public) .el-select__selected-item,
+.app-shell:not(.is-public) .el-input-number__decrease,
+.app-shell:not(.is-public) .el-input-number__increase {
+  color: #e8e9ed;
+}
+
+.app-shell:not(.is-public) .el-input__inner::placeholder,
+.app-shell:not(.is-public) .el-textarea__inner::placeholder {
+  color: #666973;
+}
+
+.app-shell:not(.is-public) .el-button--default {
+  border-color: rgba(255, 255, 255, .13);
+  color: #c9cbd2;
+  background: rgba(255, 255, 255, .055);
+}
+
+.app-shell:not(.is-public) .el-button--default:hover {
+  border-color: rgba(91, 140, 255, .55);
+  color: #fff;
+  background: rgba(91, 140, 255, .12);
+}
+
+.app-shell:not(.is-public) .el-button--primary {
+  --el-button-bg-color: #5b8cff;
+  --el-button-border-color: #5b8cff;
+  --el-button-hover-bg-color: #7aa2ff;
+  --el-button-hover-border-color: #7aa2ff;
+}
+
+.app-shell:not(.is-public) .el-dialog {
+  border: 1px solid var(--workspace-border);
+  background: #15161b;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, .55);
+}
+
+.app-shell:not(.is-public) .el-dialog__title {
+  color: #f2f3f6;
+}
+
+.app-shell:not(.is-public) .el-dialog__headerbtn .el-dialog__close {
+  color: #9295a0;
+}
+
+.app-shell:not(.is-public) .el-form-item__label {
+  color: #9295a0;
+}
+
+.app-shell:not(.is-public) .el-tabs__item {
+  color: #777a86;
+}
+
+.app-shell:not(.is-public) .el-tabs__item.is-active {
+  color: #9db8ff;
+}
+
+.app-shell:not(.is-public) .el-tabs__active-bar {
+  background: #5b8cff;
+}
+
+.app-shell:not(.is-public) .el-tabs__nav-wrap::after {
+  background: rgba(255, 255, 255, .08);
+}
+
+.app-shell:not(.is-public) .el-empty__description p {
+  color: #777a86;
+}
+
+/* Incident console theme overrides */
+:root {
+  --text: #526965;
+  --text-h: #18383d;
+  --bg: #f4f7f5;
+  --border: #e2e9e6;
+  --code-bg: #edf3ef;
+  --accent: #33736c;
+  --accent-bg: #e8f2ed;
+  --accent-border: #a9d4c1;
+  --shadow: 0 12px 30px rgba(25, 62, 57, .07);
+  --sans: 'Avenir Next', 'Segoe UI', sans-serif;
+  --heading: 'Avenir Next', 'Segoe UI', sans-serif;
+  font: 14px/145% var(--sans);
+  color: var(--text);
+  background: var(--bg);
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 320px;
+  font-family: var(--sans);
+  background: var(--bg);
+}
+
+#app {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  text-align: left;
+  border: 0;
+  min-height: 100svh;
+}
+
+.el-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+}
+
+.el-card__header {
+  border-bottom-color: var(--border);
+  color: var(--text-h);
+  font-weight: 700;
+}
+
+.el-button--primary {
+  --el-button-bg-color: #33736c;
+  --el-button-border-color: #33736c;
+  --el-button-hover-bg-color: #245c57;
+  --el-button-hover-border-color: #245c57;
+}
+
+.el-input__wrapper,
+.el-select__wrapper {
+  box-shadow: 0 0 0 1px #dbe5e1 inset;
+  border-radius: 7px;
+}
+
+.el-table {
+  --el-table-header-bg-color: #f7faf8;
+  --el-table-row-hover-bg-color: #f0f7f3;
+  --el-table-border-color: #e7eeeb;
+  color: var(--text);
+}
+
+.el-table th.el-table__cell {
+  color: #71847f;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.el-dialog {
+  border-radius: 12px;
 }

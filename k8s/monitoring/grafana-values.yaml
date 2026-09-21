@@ -1,12 +1,18 @@
 grafana:
+  env:
+    GF_LIVE_ALLOWED_ORIGINS: "http://localhost:3001,http://127.0.0.1:3001,http://localhost:18080,http://127.0.0.1:18080,http://incident.local"
+    GF_SECURITY_CSRF_TRUSTED_ORIGINS: "http://localhost:3001,http://127.0.0.1:3001,http://localhost:18080,http://127.0.0.1:18080,http://incident.local"
   grafana.ini:
     auth.anonymous:
       enabled: true
       org_role: Viewer
     security:
       allow_embedding: true
+      csrf_trusted_origins: "http://localhost:3001,http://127.0.0.1:3001,http://incident.local"
+    live:
+      allowed_origins: "http://localhost:3001,http://127.0.0.1:3001,http://incident.local"
     server:
-      domain: localhost
-      root_url: "http://localhost:8081/grafana/"
+      domain: incident.local
+      root_url: "%(protocol)s://%(domain)s/grafana/"
       enforce_domain: false
       serve_from_sub_path: true

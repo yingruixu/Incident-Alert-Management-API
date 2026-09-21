@@ -92,8 +92,8 @@
 <script setup>
 // English comments throughout: this component replaces static mocks with Prometheus-driven data
 import { ref, onMounted, nextTick } from 'vue'
-import axios from 'axios'
 import { ElMessage } from 'element-plus'
+import api from '../api'
 
 // reactive state: servers list, loading flag and error message
 const servers = ref([])
@@ -153,7 +153,7 @@ function drawSparkline(canvasId, points) {
 }
 
 // Refresh data from backend Prometheus proxy
-// This function queries Prometheus through backend endpoint `/api/prom/query_range`
+// This function queries Prometheus through backend endpoint `/api/monitor/query_range`
 // and maps result series to the `servers` array. Adjust PromQL as needed.
 async function refreshData() {
   loading.value = true
@@ -168,9 +168,9 @@ async function refreshData() {
     // This query returns per-instance CPU usage as a ratio (0..1). Adjust if your metric differs.
     const cpuQuery = 'process_cpu_usage'
 
-    const cpuRes = await axios.get('/api/prom/query_range', {
+    const cpuRes = await api.get('/monitor/query_range', {
       params: {
-        q: cpuQuery,
+        query: cpuQuery,
         start,
         end,
         step
@@ -255,6 +255,7 @@ onMounted(() => {
 
 .server-name {
   font-weight: bold;
+  color: #e6e7eb;
 }
 
 .metric {
@@ -266,15 +267,16 @@ onMounted(() => {
   justify-content: space-between;
   margin-bottom: 5px;
   font-size: 14px;
-  color: #606266;
+  color: #9295a0;
 }
 
 .observability-section {
   margin-top: 28px;
   padding: 24px;
-  border: 1px solid #dfe7ef;
+  border: 1px solid rgba(255, 255, 255, .11);
   border-radius: 12px;
-  background: #f7f9fc;
+  background: rgba(255, 255, 255, .035);
+  box-shadow: inset 0 1px rgba(255, 255, 255, .035);
 }
 
 .section-heading {
@@ -286,7 +288,7 @@ onMounted(() => {
 }
 
 .section-kicker {
-  color: #7b8794;
+  color: #858894;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -294,13 +296,13 @@ onMounted(() => {
 
 .section-heading h2 {
   margin: 4px 0 0;
-  color: #17212b;
+  color: #f2f3f6;
   font-size: 24px;
 }
 
 .section-note,
 .panel-source {
-  color: #7b8794;
+  color: #858894;
   font-size: 12px;
 }
 
@@ -313,10 +315,10 @@ onMounted(() => {
 .panel-card {
   min-width: 0;
   overflow: hidden;
-  border: 1px solid #dfe7ef;
+  border: 1px solid rgba(255, 255, 255, .1);
   border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 4px 14px rgba(25, 45, 70, 0.06);
+  background: rgba(0, 0, 0, .2);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .18);
 }
 
 .panel-card.wide {
@@ -328,7 +330,7 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: 11px 14px;
-  color: #263746;
+  color: #dfe1e7;
   font-size: 13px;
   font-weight: 700;
 }
@@ -338,7 +340,7 @@ onMounted(() => {
   width: 100%;
   height: 220px;
   border: 0;
-  background: #fff;
+  background: #111217;
 }
 
 @media (max-width: 1100px) {

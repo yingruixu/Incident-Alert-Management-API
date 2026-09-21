@@ -70,8 +70,8 @@ async function loadStats() {
 }
 
 onMounted(() => {
-    loadStats()
-    initCharts()
+  loadStats()
+  initCharts()
 })
 function initCharts() {
   // 趋势图
@@ -113,17 +113,20 @@ function initCharts() {
 </script>
 <style scoped>
 .dashboard {
-  padding: 20px;
+  padding: 4px 0;
 }
+
 .stat-card {
   height: 100px;
   margin-bottom: 20px;
 }
+
 .stat-content {
   display: flex;
   align-items: center;
   height: 100%;
 }
+
 .stat-icon {
   width: 50px;
   height: 50px;
@@ -135,17 +138,49 @@ function initCharts() {
   margin-right: 15px;
   flex-shrink: 0;
 }
+
 .stat-info {
   flex: 1;
 }
+
 .stat-value {
   font-size: 24px;
   font-weight: bold;
-  color: #303133;
+  color: #f2f3f6;
 }
+
 .stat-label {
   font-size: 13px;
-  color: #909399;
+  color: #858894;
   margin-top: 4px;
+}
+
+.dashboard :deep(.el-card__header) {
+  padding: 16px 20px;
+}
+
+.dashboard :deep(.el-card__body) {
+  padding: 20px;
+}
+
+.dashboard :deep(.el-card__header span) {
+  color: #dfe1e7;
+  font-size: 13px;
+}
+
+.dashboard :deep(canvas) {
+  filter: saturate(.9);
+}
+
+@media (max-width: 768px) {
+  .dashboard :deep(.el-row) {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  .dashboard :deep(.el-col) {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
 }
 </style>

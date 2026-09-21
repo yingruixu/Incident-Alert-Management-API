@@ -1,49 +1,46 @@
 <template>
-  <div id="app">
-    <!-- 侧边栏 -->
-    <el-container style="height: 100vh">
-      <el-aside width="220px" style="background: #304156">
+  <div id="app" class="app-shell" :class="{ 'is-public': $route.path === '/' || $route.path === '/login' }">
+    <el-container class="app-container">
+      <el-aside v-if="$route.path !== '/' && $route.path !== '/login'" width="248px" class="app-sidebar">
         <div class="logo">
-          <h2>🎯 Incident Manager</h2>
+          <div class="brand-mark">IM</div>
+          <div><strong>Incident</strong><span>Operations center</span></div>
         </div>
 
-        <el-menu
-          :default-active="$route.path"
-          router
-          background-color="#304156"
-          text-color="#bfcbd9"
-          active-text-color="#409eff"
-        >
+        <el-menu :default-active="$route.path" router class="app-menu">
           <el-menu-item index="/dashboard">
-            <span>📊 Dashboard</span>
+            <span class="menu-icon">01</span><span>Dashboard</span>
           </el-menu-item>
           <el-menu-item index="/incidents">
-            <span>🚨 Incidents</span>
+            <span class="menu-icon">02</span><span>Incidents</span>
           </el-menu-item>
           <el-menu-item index="/alerts">
-            <span>🔔 Alerts</span>
+            <span class="menu-icon">03</span><span>Alerts</span>
           </el-menu-item>
           <el-menu-item index="/monitoring">
-            <span>💻 Monitoring</span>
+            <span class="menu-icon">04</span><span>Monitoring</span>
           </el-menu-item>
           <el-menu-item index="/settings">
-            <span>⚙️ Settings</span>
+            <span class="menu-icon">05</span><span>Settings</span>
           </el-menu-item>
         </el-menu>
+        <div class="sidebar-status"><span class="status-dot"></span>
+          <div><strong>All systems operational</strong><small>Updated just now</small></div>
+        </div>
       </el-aside>
 
       <!-- 主内容 -->
-      <el-container>
-        <el-header style="background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.08)">
-          <div style="display: flex; justify-content: space-between; align-items: center; height: 100%">
-            <h3>Incident Management System</h3>
-            <div>
-              <span>👤 Admin</span>
-            </div>
+      <el-container class="content-container">
+        <el-header v-if="$route.path !== '/' && $route.path !== '/login'" class="app-header">
+          <div class="breadcrumb"><span>Workspace</span><b>/</b><strong>{{ currentPage }}</strong></div>
+          <div class="header-actions"><span class="live-indicator"><i></i> Live</span><el-divider
+              direction="vertical" />
+            <div class="user-profile"><span
+                class="avatar">AD</span><span><strong>Admin</strong><small>Administrator</small></span></div>
           </div>
         </el-header>
 
-        <el-main style="background: #f0f2f5">
+        <el-main class="app-main">
           <router-view />
         </el-main>
       </el-container>
@@ -51,33 +48,279 @@
   </div>
 </template>
 <script setup>
+import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 const $route = useRoute()
+const pageNames = { '/dashboard': 'Dashboard', '/incidents': 'Incidents', '/alerts': 'Alerts', '/monitoring': 'Monitoring', '/settings': 'Settings' }
+const currentPage = computed(() => pageNames[$route.path] || 'Dashboard')
 </script>
 <style>
-* {
-  margin: 0;
-  padding: 0;
+.app-container {
+  min-height: 100vh;
 }
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+.app-sidebar {
+  position: relative;
+  overflow: hidden;
+  background: rgba(12, 13, 16, .94);
+  color: #d9dbe2;
+  display: flex;
+  flex-direction: column;
+  padding: 0 14px;
+  border-right: 1px solid rgba(255, 255, 255, .1);
+  box-shadow: 18px 0 55px rgba(0, 0, 0, .18);
 }
+
+.app-sidebar::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 280px;
+  pointer-events: none;
+  content: '';
+  background: radial-gradient(circle at 20% 8%, rgba(91, 140, 255, .16), transparent 58%);
+}
+
 .logo {
-  height: 60px;
+  position: relative;
+  z-index: 1;
+  height: 92px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  background: #2b3a4a;
+  gap: 12px;
+  padding: 0 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, .07);
 }
-.logo h2 {
+
+.brand-mark,
+.avatar {
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  letter-spacing: .04em;
+}
+
+.brand-mark {
+  width: 38px;
+  height: 38px;
   color: #fff;
-  font-size: 18px;
+  background: linear-gradient(140deg, #5b8cff, #a855f7);
+  border-radius: 10px;
+  font-size: 13px;
+  box-shadow: 0 7px 22px rgba(91, 140, 255, .25);
 }
-.el-menu-item {
-  height: 50px;
-  line-height: 50px;
+
+.logo strong,
+.logo span {
+  display: block;
 }
-.el-menu-item span {
-  margin-left: 8px;
+
+.logo strong {
+  color: #f5f6f8;
+  font-size: 17px;
+}
+
+.logo span {
+  color: #777b87;
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+.app-menu {
+  position: relative;
+  z-index: 1;
+  border: 0;
+  background: transparent;
+  flex: 1;
+  padding-top: 18px;
+}
+
+.app-menu .el-menu-item {
+  height: 48px;
+  line-height: 48px;
+  color: #858894;
+  border-radius: 10px;
+  margin: 4px 0;
+  font-size: 13px;
+  font-weight: 600;
+  transition: color .2s, background .2s, transform .2s;
+}
+
+.app-menu .el-menu-item:hover {
+  background: rgba(255, 255, 255, .06);
+  color: #f5f6f8;
+  transform: translateX(2px);
+}
+
+.app-menu .el-menu-item.is-active {
+  color: #fff;
+  background: linear-gradient(100deg, rgba(91, 140, 255, .26), rgba(168, 85, 247, .12));
+  box-shadow: inset 2px 0 #7b9fff, inset 0 1px rgba(255, 255, 255, .06);
+}
+
+.menu-icon {
+  width: 28px;
+  color: #555966;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
+.is-active .menu-icon {
+  color: #9db8ff;
+}
+
+.sidebar-status {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 16px 10px 20px;
+  border-top: 1px solid rgba(255, 255, 255, .08);
+  color: #c3c6ce;
+  font-size: 11px;
+}
+
+.sidebar-status strong,
+.sidebar-status small,
+.user-profile strong,
+.user-profile small {
+  display: block;
+}
+
+.sidebar-status small,
+.user-profile small {
+  color: #6e727e;
+  font-size: 10px;
+  margin-top: 3px;
+}
+
+.status-dot,
+.live-indicator i {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22d3ee;
+  margin-top: 3px;
+  box-shadow: 0 0 10px rgba(34, 211, 238, .8);
+}
+
+.content-container {
+  min-width: 0;
+}
+
+.app-header {
+  height: 74px;
+  border-bottom: 1px solid #e2e9e6;
+  background: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 34px;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #9aa9a6;
+  font-size: 12px;
+}
+
+.breadcrumb b {
+  color: #d0dad7;
+  font-weight: 400;
+}
+
+.breadcrumb strong {
+  color: #18383d;
+  font-size: 14px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.live-indicator {
+  color: #66817b;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.live-indicator i {
+  margin: 0 7px 1px 0;
+  width: 6px;
+  height: 6px;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #18383d;
+  font-size: 12px;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #e9f2ed;
+  color: #33736c;
+  font-size: 10px;
+}
+
+.app-main {
+  background: #f4f7f5;
+  padding: 30px 34px 44px;
+}
+
+.is-public .app-main {
+  padding: 0;
+}
+
+@media (max-width: 768px) {
+  .app-sidebar {
+    width: 72px !important;
+    padding: 0 8px;
+  }
+
+  .logo {
+    justify-content: center;
+    padding: 0;
+  }
+
+  .logo>div:not(.brand-mark),
+  .app-menu .el-menu-item span:not(.menu-icon),
+  .sidebar-status {
+    display: none;
+  }
+
+  .app-menu .el-menu-item {
+    justify-content: center;
+    padding: 0;
+  }
+
+  .menu-icon {
+    width: auto;
+  }
+
+  .app-header {
+    padding: 0 18px;
+  }
+
+  .live-indicator,
+  .app-header .el-divider {
+    display: none;
+  }
+
+  .app-main {
+    padding: 20px 16px 30px;
+  }
 }
 </style>
