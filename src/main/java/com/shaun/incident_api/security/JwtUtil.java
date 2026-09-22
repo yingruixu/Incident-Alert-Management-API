@@ -36,11 +36,22 @@ public class JwtUtil {
     // generate JWT
     public String generateToken(String username) {
         return Jwts.builder()
-                .setSubject(username)             // token 的主体，通常是用户名
-                .setIssuedAt(new Date())          // 生成时间
+                .setSubject(username) // token 的主体，通常是用户名
+                .setIssuedAt(new Date()) // 生成时间
                 .setExpiration(new Date(System.currentTimeMillis() + expiration)) // 过期时间
-                .signWith(key, SignatureAlgorithm.HS256)                    // 使用密钥签名
-                .compact();                       // 生成字符串
+                .signWith(key, SignatureAlgorithm.HS256) // 使用密钥签名
+                .compact(); // 生成字符串
+    }
+
+    // generate JWT with username and role
+    public String generateToken(String username, String role) {
+        return Jwts.builder()
+                .setSubject(username)
+                .claim("role", role) // 把角色写进 JWT
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 86400000))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
     }
 
     // get Claims

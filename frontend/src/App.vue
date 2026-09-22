@@ -1,5 +1,6 @@
 <template>
-  <div id="app" class="app-shell" :class="{ 'is-public': $route.path === '/' || $route.path === '/login' }">
+  <div id="app" class="app-shell"
+    :class="{ 'is-public': $route.path === '/' || $route.path === '/login', 'is-dashboard': $route.path === '/dashboard' }">
     <el-container class="app-container">
       <el-aside v-if="$route.path !== '/' && $route.path !== '/login'" width="248px" class="app-sidebar">
         <div class="logo">
@@ -35,8 +36,8 @@
           <div class="breadcrumb"><span>Workspace</span><b>/</b><strong>{{ currentPage }}</strong></div>
           <div class="header-actions"><span class="live-indicator"><i></i> Live</span><el-divider
               direction="vertical" />
-            <div class="user-profile"><span
-                class="avatar">AD</span><span><strong>Admin</strong><small>Administrator</small></span></div>
+            <div class="user-profile"><span class="avatar">{{ userInitials }}</span><span><strong>{{ userName
+            }}</strong><small>{{ userRole }}</small></span></div>
           </div>
         </el-header>
 
@@ -48,11 +49,40 @@
   </div>
 </template>
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
+
 const $route = useRoute()
-const pageNames = { '/dashboard': 'Dashboard', '/incidents': 'Incidents', '/alerts': 'Alerts', '/monitoring': 'Monitoring', '/settings': 'Settings' }
+
+const pageNames = {
+  '/dashboard': 'Dashboard',
+  '/incidents': 'Incidents',
+  '/alerts': 'Alerts',
+  '/monitoring': 'Monitoring',
+  '/settings': 'Settings'
+}
 const currentPage = computed(() => pageNames[$route.path] || 'Dashboard')
+
+const userName = ref('Guest')
+const userRole = ref('User')
+
+const userInitials = computed(() => {
+  const name = userName.value
+  if (!name || name === 'Guest') return 'G'
+  const parts = name.split(' ').filter(Boolean)
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase()
+  return name.slice(0, 2).toUpperCase()
+})
+
+function loadUser() {
+  const stored = localStorage.getItem('username')
+  userName.value = stored || 'Guest'
+  userRole.value = 'Administrator'
+}
+
+onMounted(() => {
+  loadUser()
+})
 </script>
 <style>
 .app-container {
@@ -278,6 +308,23 @@ const currentPage = computed(() => pageNames[$route.path] || 'Dashboard')
 .app-main {
   background: #f4f7f5;
   padding: 30px 34px 44px;
+}
+
+.is-dashboard .app-main {
+  background: #0f141d;
+  padding: 18px 18px 22px;
+}
+
+.is-dashboard .app-header {
+  background: rgba(10, 13, 18, 0.9);
+  border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+
+.is-dashboard .breadcrumb,
+.is-dashboard .live-indicator,
+.is-dashboard .user-profile,
+.is-dashboard .breadcrumb strong {
+  color: rgba(220, 226, 236, 0.8);
 }
 
 .is-public .app-main {

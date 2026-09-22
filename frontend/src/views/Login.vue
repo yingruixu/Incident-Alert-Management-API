@@ -62,8 +62,9 @@ const handleLogin = async () => {
       username: form.value.username,
       password: form.value.password
     })
-    localStorage.setItem('token', response.data)
-    localStorage.setItem('username', form.value.username)
+    localStorage.setItem('token', response.data.token)
+    localStorage.setItem('username', response.data.username)
+    localStorage.setItem('role', response.data.role)
 
     ElMessage.success('Login successful!')
     router.push('/dashboard')

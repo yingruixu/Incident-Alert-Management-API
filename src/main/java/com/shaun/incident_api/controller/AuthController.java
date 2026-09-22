@@ -4,6 +4,9 @@ import com.shaun.incident_api.DTO.LoginRequest;
 import com.shaun.incident_api.entity.AppUser;
 import com.shaun.incident_api.repository.UserRepository;
 import com.shaun.incident_api.security.JwtUtil;
+
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -20,11 +23,11 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
-    private  UserRepository userRepository;
-    private  PasswordEncoder passwordEncoder;
+    private UserRepository userRepository;
+    private PasswordEncoder passwordEncoder;
 
     public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil,
-                          UserRepository userRepository, PasswordEncoder passwordEncoder) {
+            UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.userRepository = userRepository;
@@ -35,24 +38,30 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
 
         try {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getUsername(),
-                        request.getPassword()
-                )
-        );
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getUsername(),
+                            request.getPassword()));
 
+            // Get user info
+            AppUser user = userRepository.findByUsername(request.getUsername())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
 
-        String token = jwtUtil.generateToken(request.getUsername());
+            // Generate JWT token
+            String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
 
+            // 返回 JSON：token + username + role
+            Map<String, String> response = new HashMap<>();
+            response.put("token", token);
+            response.put("username", user.getUsername());
+            response.put("role", user.getRole());
 
-        return ResponseEntity.ok(token);
-        }  catch (BadCredentialsException e) {
-            // Username or password incorrect
+            return ResponseEntity.ok(response);
+
+        } catch (BadCredentialsException e) {
             return ResponseEntity.status(401).body("Username or password incorrect");
-
         } catch (Exception e) {
-            e.printStackTrace();;
+            e.printStackTrace();
             return ResponseEntity.status(500).body(e.getMessage());
         }
     }
