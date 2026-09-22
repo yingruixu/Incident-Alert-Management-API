@@ -1,4 +1,5 @@
 # Incident & Alert Management API
+<img width="2560" height="1271" alt="image" src="https://github.com/user-attachments/assets/c5391972-42fc-4422-8e28-2c1a01b0abe1" />
 
 Lightweight Incident & Alert Management system with a Vue 3 frontend, Spring Boot backend, MySQL storage, and Prometheus/Grafana for monitoring.
 ```mermaid
@@ -138,7 +139,8 @@ npm run dev
 This project includes a Grafana + Prometheus monitoring dashboard for service health:  
 backend availability, 5xx error rate, p95 latency, frontend availability, MySQL connections, and more.
 
-<img width="2560" height="1271" alt="image" src="https://github.com/user-attachments/assets/04dcde7c-5ac4-4fe0-a9d8-2663993073e7" />
+<img width="2560" height="1271" alt="image" src="https://github.com/user-attachments/assets/2e4b9dfb-e00f-4ed4-a654-41e60c66549f" />
+
 
 ## プロジェクト名：Incident & Alert Management Dashboard
 
